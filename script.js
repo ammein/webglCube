@@ -8,40 +8,40 @@ $(function() {
   // Make Cube ! (Cube have 36 vertices)
   var vertices = [
   // Front face (x,y,z)
-  -1.0, -1.0,  1.0,
-   1.0, -1.0,  1.0,
-   1.0,  1.0,  1.0,
-  -1.0,  1.0,  1.0,
+  -1.0, -1.0,  1.0, 1.0,
+   1.0, -1.0,  1.0, -1.0,
+   1.0,  1.0,  1.0, 1.0,
+  -1.0,  1.0,  1.0, 1.0,
   
   // Back face (x,y,z)
-  -1.0, -1.0, -1.0,
-  -1.0,  1.0, -1.0,
-   1.0,  1.0, -1.0,
-   1.0, -1.0, -1.0,
+  -1.0, -1.0, -1.0, -1.0,
+  -1.0,  1.0, -1.0, 1.0,
+   1.0,  1.0, -1.0, -1.0,
+   1.0, -1.0, -1.0, 1.0,
   
   // Top face (x,y,z)
-  -1.0,  1.0, -1.0,
-  -1.0,  1.0,  1.0,
-   1.0,  1.0,  1.0,
-   1.0,  1.0, -1.0,
+  -1.0,  1.0, -1.0, 1.0,
+  -1.0,  1.0,  1.0, -1.0,
+   1.0,  1.0,  1.0, 1.0,
+   1.0,  1.0, -1.0, -1.0,
   
   // Bottom face (x,y,z)
-  -1.0, -1.0, -1.0,
-   1.0, -1.0, -1.0,
-   1.0, -1.0,  1.0,
-  -1.0, -1.0,  1.0,
+  -1.0, -1.0, -1.0, -1.0,
+   1.0, -1.0, -1.0, 1.0,
+   1.0, -1.0,  1.0, -1.0,
+  -1.0, -1.0,  1.0, 1.0,
   
   // Right face (x,y,z)
-   1.0, -1.0, -1.0,
-   1.0,  1.0, -1.0,
-   1.0,  1.0,  1.0,
-   1.0, -1.0,  1.0,
+   1.0, -1.0, -1.0, 1.0,
+   1.0,  1.0, -1.0, -1.0,
+   1.0,  1.0,  1.0, 1.0,
+   1.0, -1.0,  1.0, -1.0,
   
   // Left face (x,y,z)
-  -1.0, -1.0, -1.0,
-  -1.0, -1.0,  1.0,
-  -1.0,  1.0,  1.0,
-  -1.0,  1.0, -1.0,
+  -1.0, -1.0, -1.0, -1.0,
+  -1.0, -1.0,  1.0, 1.0,
+  -1.0,  1.0,  1.0, -1.0,
+  -1.0,  1.0, -1.0, 1.0
   ];
   
   var cubeVertexPositionBuffer = gl.createBuffer();
@@ -57,9 +57,9 @@ $(function() {
     [1.0,0.0,0.0,1.0], // Front Face
     [0.0,1.0,0.0,1.0], // Back Face
     [1.0,0.0,1.0,0.0], // Top Face
-    [0.4,1.0,0.0,1.0], // Bottom Face
-    [0.3,1.0,0.4,1.0], // Right Face
-    [1.0,0.2,1.0,0.5] // Left Face
+    [0.0,1.0,0.0,1.0], // Bottom Face
+    [0.0,1.0,0.0,1.0], // Right Face
+    [1.0,0.0,1.0,0.0] // Left Face
   ];
   
   // Cannot send to GPU, we do some looping technique to do all those colors to be on the same faces
@@ -103,7 +103,8 @@ $(function() {
   gl.enableVertexAttribArray(positionAttributePosition);
   // Then you bind the buffer into cubeVertexPositionBuffer
   gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
-  gl.vertexAttribPointer(positionAttributePosition,3,gl.FLOAT,false,0,0);  
+  // void gl.vertexAttribPointer(index,size(position have 3 components : x , y, z),type,normalized,stride,offset(Can set read vertices at size value))
+  gl.vertexAttribPointer(positionAttributePosition,4,gl.FLOAT,false,0,0);  
   
   /*************************************************************************************************************
   Get All the 'position' in vec3 position into the program
@@ -113,6 +114,7 @@ $(function() {
   gl.enableVertexAttribArray(colorAttributePosition);
   // Then you bind the buffer into cubeVertexPositionBuffer
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  // void gl.vertexAttribPointer(index,size(position have 3 components : x , y, z),type,normalized,stride,offset(Can set read vertices at size value))
   gl.vertexAttribPointer(colorAttributePosition,4,gl.FLOAT,false,0,0);
   
   
@@ -143,7 +145,6 @@ $(function() {
   }
   
   
-  
   // Next , do the same for fragment shader
   function getAndCompileFragmentShader(id){
     var shader;
@@ -168,15 +169,27 @@ $(function() {
     
     return shader;
   }  
+
+  // This will create new identity
+  var modelMatrix = mat4.create();
+  var viewMatrix = mat4.create();
+  var projectionMatrix = mat4.create();
+
+  // PERSPECTIVE CAMERA
+  // .perspective(mat4 out, number fovy, number aspect , Number near, Number far)
+  mat4.perspective(projectionMatrix, 45 * Math.PI / 180.0, w / h, 0.1, 10);
+
+  var angle = .1;
+
   var runRenderLoop = () =>{
     // Make black color function
     gl.clearColor(0,0,0,1);
     // Before put color , we clean the color buffer bit
     gl.clear(gl.COLOR_BUFFER_BIT);
     // Then DRAW TRIANGLE ! Yey !
+    mat4.rotateY(modelMatrix,modelMatrix,angle);
     // .drawArrays(gl.TRIANGLES , offset , triangle vertices(num))
     gl.drawArrays(gl.TRIANGLES,0,24);
-    
     // Will rerun after the render finish
     requestAnimationFrame(runRenderLoop);
   }

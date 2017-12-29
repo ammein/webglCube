@@ -13,7 +13,7 @@
 
 <body>
   <canvas id=b></canvas>
-  
+
 <!-- Always put jQuery on top -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.4.0/gl-matrix.js"></script>
@@ -24,8 +24,12 @@
     in vec3 position;
     in vec4 color;
     out vec4 fcolor; 
+
+    uniform mat4 modelMatrix;
+    uniform mat4 viewMatrix;
+    uniform mat4 projectionMatrix;
     void main(){ 
-      gl_Position = vec4(position,1);
+      gl_Position = projectionMatrix*viewMatrix*modelMatrix*vec4(position,1);
       fcolor = color;
     }
   </script>
