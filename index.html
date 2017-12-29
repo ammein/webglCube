@@ -6,7 +6,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>WebGL Cube</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="./style.css">
 
@@ -14,20 +13,34 @@
 
 <body>
   <canvas id=b></canvas>
-
+  
+<!-- Always put jQuery on top -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.4.0/gl-matrix.js"></script>
+<script src="./script.js"></script>
   <!-- Using type vertexShader to tell HTML not to load Javascript on that script -->
   <script id="vertexShader" type="vertexShader">
-    #version 300 es in vec3 position; in vec4 color; out vec4 fcolor; void main(){ gl_Position = vec4(position,1); fcolor = color;
+    #version 300 es
+    in vec3 position;
+    in vec4 color;
+    out vec4 fcolor; 
+    void main(){ 
+      gl_Position = vec4(position,1);
+      fcolor = color;
     }
   </script>
   <!-- Fragment Shader -->
   <script id="fragmentShader" type="fragmentShader">
-    #version 300 es // set precision for float precision mediump float; // To send Fragment Shader in vec4 fcolor; out vec4 finalColor;
-    void main(){ finalColor = fcolor; }
+    #version 300 es 
+    // set precision for float 
+    precision mediump float;
+    // To send Fragment Shader
+    in vec4 fcolor;
+    out vec4 finalColor;
+    void main(){
+      finalColor = fcolor;
+    }
   </script>
-  <script src="./script.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.4.0/gl-matrix.js"></script>
 </body>
 
 </html>
