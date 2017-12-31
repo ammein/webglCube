@@ -11,55 +11,55 @@ $(function () {
   // Make Cube ! (Cube have 36 vertices)
   var cubeVertices = [
     // Front face (x,y,z)
-    -0.5,0.5,0.5,
-    -0.5,-0.5,0.5,
-    0.5,0.5,0.5,
-    0.5,0.5,0.5,
-    -0.5,-0.5,0.5,
-    0.5,-0.5,0.5,
+    0,0,0,
+    20,0,0,
+    0,20,0,
+    0,20,0,
+    20,0,0,
+    20,20,0,
 
     // Back face (x,y,z)
-    -0.5, -0.5, 0.5,
-    -0.5, 0.5, 0.5,
-    0.5, 0.5, 0.5,
-    0.5, -0.5, 0.5,
-    -0.5, 0.5, 0.5,
-    0.5, 0.5, 0.5,
+    0, 0, 20,
+    20, 0, 20,
+    0, 20, 20,
+    0, 20, 20,
+    20, 0, 20,
+    20, 20, 20,
 
     // Top face (x,y,z)
-    -0.5, 0.5, 0.5,
-    -0.5, 0.5, 0.5,
-    0.5, 0.5, 0.5,
-    0.5, 0.5, 0.5,
-    -0.5, 0.5, 0.5,
-    0.5, 0.5, 0.5,
+    0, 20, 0,
+    20, 20, 0,
+    0, 20, 20,
+    0, 20, 20,
+    20, 20, 0,    
+    20, 20, 20,
+    
 
     // Bottom face (x,y,z)
-    -0.5, -0.5, 0.5,
-    0.5, -0.5, 0.5,
-    0.5, -0.5, 0.5,
-    -0.5, -0.5, 0.5,
-    0.5, -0.5, 0.5,
-    0.5, -0.5, 0.5,
+    0,0,0,
+    20,0,0,
+    0,0,20,
+    0,0,20,
+    20,0,0,
+    20,20,20,
 
     // Right face (x,y,z)
-    0.5, -0.5, 0.5,
-    0.5, 0.5, 0.5,
-    0.5, 0.5, 0.5,
-    0.5, -0.5, 0.5,
-    0.5, 0.5, 0.5,
-    0.5, 0.5, 0.5,
+    20,20,0,
+    20,0,0,
+    20,0,20,
+    20,0,20,
+    20,20,20,
+    20,20,0,
 
     // Left face (x,y,z)
-    -0.5, -0.5, -0.5,
-    -0.5, -0.5, 0.5,
-    -0.5, 0.5, 0.5,
-    -0.5, 0.5, -0.5,
-    -0.5, -0.5, 0.5,
-    -0.5, 0.5, 0.5,
+    0,0,0,
+    0,0,20,
+    0,20,0,
+    0,20,0,
+    0,20,20,
+    0,0,20
   ];
 
-  console.log("Cube Vertices " + cubeVertices);
 
   var cubeVertexPositionBuffer = gl.createBuffer();
   // Bind Buffer to GPU cubeVertexPositionBuffer
@@ -73,7 +73,7 @@ $(function () {
   var faceColors = [
     [1.0, 0.0, 0.0, 1.0], // Front Face
     [0.0, 1.0, 0.0, 1.0], // Back Face
-    [1.0, 0.0, 1.0, 1.0], // Top Face
+    [1.0, 0.0, 0.0, 1.0], // Top Face
     [0.0, 1.0, 0.0, 1.0], // Bottom Face
     [0.0, 1.0, 0.0, 1.0], // Right Face
     [1.0, 0.0, 0.0, 1.0] // Left Face
@@ -204,13 +204,17 @@ $(function () {
 
   var runRenderLoop = () => {
     // Make black color function
-    gl.clearColor(1, 0, 0, 1);
+    gl.clearColor(0, 0, 0, 1);
     // Before put color , we clean the color buffer bit
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
+    // Clear the screen
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     // Then DRAW TRIANGLE ! Yey !
     // mat4.rotateY(modelMatrix, modelMatrix, angle);
     // .drawArrays(gl.TRIANGLES , offset , triangle cubeVertices(num))
-    gl.drawArrays(gl.TRIANGLES, 0, 36);
+    var offset = 0;
+    var count = 3 * 12; // 3 vertices * 12 triangles (6 rectangles)
+    gl.drawArrays(gl.TRIANGLES, offset, count);
     // Will rerun after the render finish
 
     requestAnimationFrame(runRenderLoop);
