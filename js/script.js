@@ -1,6 +1,7 @@
+import "./src/gl-matrix";
 
 // Visual Studio Special by adding three slash and use <reference path="" />
-/// <reference path="./gl-matrix.js"/>
+/// <reference path="./src/gl-matrix.js"/>
 /// <reference path="../js/jquery-3.2.0.min.js"/>
 
 $(function () { 
@@ -191,16 +192,24 @@ $(function () {
     return shader;
   }
 
-  // // This will create new identity
-  // var modelMatrix = mat4.create();
-  // var viewMatrix = mat4.create();
-  // var projectionMatrix = mat4.create();
+  // This will create new identity
+  var modelMatrix = mat4.create();
+  var viewMatrix = mat4.create();
+  var projectionMatrix = mat4.create();
 
-  // // PERSPECTIVE CAMERA
-  // // .perspective(mat4 out, number fovy, number aspect , Number near, Number far)
-  // mat4.perspective(projectionMatrix, 45 * Math.PI / 180.0, w / h, 0.1, 10);
+  // PERSPECTIVE CAMERA
+  // .perspective(mat4 out, number fovy, number aspect , Number near, Number far)
+  mat4.perspective(projectionMatrix,45*Math.PI/180.0,w/h,0.1,10);
 
-  // var angle = .1;
+  /***********************************************************
+          To get uniform matrix from html script
+  ***********************************************************/
+  var modelMatrixLocation = gl.getUniformLocation(shaderProgram, "modelMatrix");
+  var viewMatrixLocation = gl.getUniformLocation(shaderProgram, "viewMatrix");
+  var projectionMatrixLocation = gl.getUniformLocation(shaderProgram, "projectionMatrix");
+
+
+  var angle = 0.1; // put 0.1 , can skip incrementing on rotateY function
 
   var runRenderLoop = () => {
     // Make black color function
@@ -210,7 +219,15 @@ $(function () {
     // Clear the screen
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     // Then DRAW TRIANGLE ! Yey !
-    // mat4.rotateY(modelMatrix, modelMatrix, angle);
+    // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
+    mat4.identity(modelMatrix); // this will reset identity so can do incrementing
+    mat4.translate(modelMatrix,modelMatrix,[0,0,50]);
+    mat4.rotateY(modelMatrix,modelMatrix,angle);
+    // Now to send the actual matrices to this location
+    gl.uniformMatrix4fv(modelMatrixLocation, false, modelMatrix);
+    gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
+    gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
+    
     // .drawArrays(gl.TRIANGLES , offset , triangle cubeVertices(num))
     var offset = 0;
     var count = 3 * 12; // 3 vertices * 12 triangles (6 rectangles)
