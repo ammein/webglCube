@@ -210,6 +210,8 @@ $(function () {
   var angle = 0.1; // put 0.1 , can skip incrementing on rotateY function
 
   var runRenderLoop = () => {
+    // Tell WebGL how to convert from clip space to pixels
+    gl.viewport(0, 0, w, h);
     // Make black color function
     gl.clearColor(0, 0, 0, 1);
     // Before put color , we clean the color buffer bit
@@ -220,7 +222,7 @@ $(function () {
     // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
     mat4.identity(modelMatrix); // this will reset identity so can do incrementing
     // .translate(receiving matrix , matrix to translate ,[x,y,z])
-    mat4.translate(modelMatrix,modelMatrix,[0,0,-22]);
+    mat4.translate(modelMatrix,modelMatrix,[0,0,1]);
     mat4.rotateY(modelMatrix,modelMatrix,angle);
     angle += 0.1;
     
