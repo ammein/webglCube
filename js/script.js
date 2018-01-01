@@ -206,7 +206,6 @@ $(function () {
   var viewMatrixLocation = gl.getUniformLocation(shaderProgram, "viewMatrix");
   var projectionMatrixLocation = gl.getUniformLocation(shaderProgram, "projectionMatrix");
 
-
   var angle = 0.1; // put 0.1 , can skip incrementing on rotateY function
 
   var runRenderLoop = () => {
