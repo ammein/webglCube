@@ -197,7 +197,7 @@ $(function () {
 
   // PERSPECTIVE CAMERA
   // .perspective(mat4 out, number fovy, number aspect , Number near, Number far)
-  mat4.perspective(projectionMatrix,45*Math.PI/180.0,w/h,0.1,10);
+  mat4.perspective(projectionMatrix,45*Math.PI/180.0,w/h,0.1,50);
 
   /***********************************************************
           To get uniform matrix from html script
@@ -215,17 +215,19 @@ $(function () {
     // Before put color , we clean the color buffer bit
     // gl.clear(gl.COLOR_BUFFER_BIT);
     // Clear the screen
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT);
     // Then DRAW TRIANGLE ! Yey !
     // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
     mat4.identity(modelMatrix); // this will reset identity so can do incrementing
-    mat4.translate(modelMatrix,modelMatrix,[0,0,-10]);
+    // .translate(receiving matrix , matrix to translate ,[x,y,z])
+    mat4.translate(modelMatrix,modelMatrix,[0,0,-22]);
     mat4.rotateY(modelMatrix,modelMatrix,angle);
+    angle += 0.1;
+    
     // Now to send the actual matrices to this location
     gl.uniformMatrix4fv(modelMatrixLocation, false, modelMatrix);
     gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
     gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
-    
     // .drawArrays(gl.TRIANGLES , offset , triangle cubeVertices(num))
     var offset = 0;
     var count = 3 * 12; // 3 vertices * 12 triangles (6 rectangles)
