@@ -1,5 +1,3 @@
-import "./src/gl-matrix";
-
 // Visual Studio Special by adding three slash and use <reference path="" />
 /// <reference path="./src/gl-matrix.js"/>
 /// <reference path="../js/jquery-3.2.0.min.js"/>
@@ -221,7 +219,7 @@ $(function () {
     // Then DRAW TRIANGLE ! Yey !
     // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
     mat4.identity(modelMatrix); // this will reset identity so can do incrementing
-    mat4.translate(modelMatrix,modelMatrix,[0,0,50]);
+    mat4.translate(modelMatrix,modelMatrix,[0,0,-10]);
     mat4.rotateY(modelMatrix,modelMatrix,angle);
     // Now to send the actual matrices to this location
     gl.uniformMatrix4fv(modelMatrixLocation, false, modelMatrix);
@@ -236,6 +234,7 @@ $(function () {
 
     requestAnimationFrame(runRenderLoop);
   }
+
 
   requestAnimationFrame(runRenderLoop);
 
