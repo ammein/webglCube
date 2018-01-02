@@ -2,64 +2,64 @@
 /// <reference path="./src/gl-matrix.js"/>
 /// <reference path="../js/jquery-3.2.0.min.js"/>
 
-$(function () { 
+$(function () {
   let gl = b.getContext("webgl2"),
     w = b.width = window.innerWidth,
     h = b.height = window.innerHeight;
-    
+
   // console.log("What is GL ? "+gl);
 
   // Make Cube ! (Cube have 36 vertices)
   let cubeVertices = [
     // Front face (x,y,z)
-    -0.5,-0.5,0.5,
-    0.5,-0.5,0.5,
-    -0.5,0.5,0.5,
-    0.5, 0.5, 0.5,
-    0.5,-0.5,0.5,
+    -0.5, -0.5, 0.5,
+    0.5, -0.5, 0.5,
     -0.5, 0.5, 0.5,
-    
+    0.5, 0.5, 0.5,
+    0.5, -0.5, 0.5,
+    -0.5, 0.5, 0.5,
+
 
     // Back face (x,y,z)
-    -0.5,-0.5,-0.5,
-    0.5,-0.5,-0.5,
-    -0.5,0.5,-0.5,
-    -0.5,0.5,-0.5,
-    0.5,-0.5,-0.5,
-    0.5,0.5,-0.5,
+    -0.5, -0.5, -0.5,
+    0.5, -0.5, -0.5,
+    -0.5, 0.5, -0.5,
+    -0.5, 0.5, -0.5,
+    0.5, -0.5, -0.5,
+    0.5, 0.5, -0.5,
 
     // Top face (x,y,z)
-    -0.5,0.5,0.5,
-    0.5,0.5,0.5,
-    -0.5,0.5,-0.5,
-    -0.5,0.5,-0.5,
-    0.5,0.5,0.5,
-    0.5,0.5,-0.5,
-    
+    -0.5, 0.5, 0.5,
+    0.5, 0.5, 0.5,
+    -0.5, 0.5, -0.5,
+    -0.5, 0.5, -0.5,
+    0.5, 0.5, 0.5,
+    0.5, 0.5, -0.5,
+
 
     // Bottom face (x,y,z)
-    -0.5,-0.5,0.5,
-    0.5,-0.5,0.5,
-    -0.5,-0.5,-0.5,
-    -0.5,-0.5,-0.5,
-    0.5,-0.5,0.5,
-    0.5,-0.5,-0.5,
+    -0.5, -0.5, 0.5,
+    0.5, -0.5, 0.5,
+    -0.5, -0.5, -0.5,
+    -0.5, -0.5, -0.5,
+    0.5, -0.5, 0.5,
+    0.5, -0.5, -0.5,
 
     // Right face (x,y,z)
-    0.5,0.5,0.5,
-    0.5,-0.5,0.5,
-    0.5,-0.5,-0.5,
-    0.5,0.5,0.5,
-    0.5,-0.5,-0.5,
-    0.5,0.5,-0.5,
+    0.5, 0.5, 0.5,
+    0.5, -0.5, 0.5,
+    0.5, -0.5, -0.5,
+    0.5, 0.5, 0.5,
+    0.5, -0.5, -0.5,
+    0.5, 0.5, -0.5,
 
     // Left face (x,y,z)
-    -0.5,0.5,0.5,
-    -0.5,-0.5,0.5,
-    -0.5,-0.5,-0.5,
-    -0.5,0.5,0.5,
-    -0.5,-0.5,-0.5,
-    -0.5,0.5,-0.5,
+    -0.5, 0.5, 0.5,
+    -0.5, -0.5, 0.5,
+    -0.5, -0.5, -0.5,
+    -0.5, 0.5, 0.5,
+    -0.5, -0.5, -0.5,
+    -0.5, 0.5, -0.5,
   ];
 
   let cubeVertexPositionBuffer = gl.createBuffer();
@@ -72,23 +72,23 @@ $(function () {
 
   // Make every cube faces to be the same color (rgba value)
   let faceColors = [
-    [1.0, 0.0, 0.0, 1.0], // Front Face
+    [0.2, 0.1, 0.5, 1.0], // Front Face
     [0.0, 1.0, 0.0, 1.0], // Back Face
-    [0.0, 0.0, 0.5, 1.0], // Top Face
-    [1.0, 1.0, 0.0, 1.0], // Bottom Face
-    [1.0, 0.0, 0.5, 1.0], // Right Face
-    [0.0, 1.0, 1.0, 0.0] // Left Face
+    [0.7, 0.2, 0.5, 1.0], // Top Face
+    [0.0, 1.0, 0.6, 1.0], // Bottom Face
+    [0.0, 0.0, 0.5, 0.0], // Right Face
+    [0.0, 1.0, 1.0, 1.0] // Left Face
   ];
 
   // Cannot send to GPU, we do some looping technique to do all those colors to be on the same faces
   faceColors.forEach(function (color) {
-    for(var i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       colors = colors.concat(color); // this will send the each array to colors
     }
   });
 
   // console.log('colors', colors.toString());
-  
+
 
   var colorBuffer = gl.createBuffer();
 
@@ -196,10 +196,6 @@ $(function () {
   var viewMatrix = mat4.create();
   var projectionMatrix = mat4.create();
 
-  // PERSPECTIVE CAMERA
-  // .perspective(mat4 out, number fovy, number aspect , Number near, Number far)
-  mat4.perspective(projectionMatrix,45*Math.PI/180.0,w/h,0.1,50);
-
   /***********************************************************
           To get uniform matrix from html script
   ***********************************************************/
@@ -207,26 +203,34 @@ $(function () {
   var viewMatrixLocation = gl.getUniformLocation(shaderProgram, "viewMatrix");
   var projectionMatrixLocation = gl.getUniformLocation(shaderProgram, "projectionMatrix");
 
-  var angle = 0.1;
-  var speed = 0.05; // put 0.1 , can skip incrementing on rotateY function
+  var angle = 0.1; // put 0.1 , can skip incrementing on rotateY function
+  var speed = 0.05;
+
+  // PERSPECTIVE CAMERA
+  // .perspective(mat4 out, number fovy, number aspect , Number near, Number far)
+  // .perspective(mat4 out , Vertical field of view in radians,viewport width/height,Near bound of matrix,Far bound of matrix)
+  mat4.perspective(projectionMatrix, 45 * Math.PI / 360.0, w / h, 0.1, 50);
 
   var runRenderLoop = () => {
     // Tell WebGL how to convert from clip space to pixels
     gl.viewport(0, 0, w, h);
     // Make black color function
-    gl.clearColor(0, 0, 0, 1);
+    gl.clearColor(0.2, 0.2, 0.7, 1);
     // Before put color , we clean the color buffer bit
-    // gl.clear(gl.COLOR_BUFFER_BIT);
     // Clear the screen
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    // Clear DEPTH BUFFER so that every cube color become solid !
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    // Must put test
+    gl.enable(gl.DEPTH_TEST);
     // Then DRAW TRIANGLE ! Yey !
     // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
     mat4.identity(modelMatrix); // this will reset identity so can do incrementing
     // .translate(receiving matrix , matrix to translate ,[x,y,z])
-    mat4.translate(modelMatrix,modelMatrix,[0,0,-10]);
-    mat4.rotateY(modelMatrix,modelMatrix,angle);
+    mat4.translate(modelMatrix, modelMatrix, [0, 0, -10]);
+    mat4.rotateY(modelMatrix, modelMatrix, angle);
+    mat4.rotateX(modelMatrix, modelMatrix, angle / 2);
     angle += speed;
-    
+
     // Now to send the actual matrices to this location
     gl.uniformMatrix4fv(modelMatrixLocation, false, modelMatrix);
     gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
