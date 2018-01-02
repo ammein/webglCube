@@ -2,15 +2,16 @@
 /// <reference path="./src/gl-matrix.js"/>
 /// <reference path="../js/jquery-3.2.0.min.js"/>
 
-$(function () {
-  let gl = b.getContext("webgl2"),
-    w = b.width = window.innerWidth,
-    h = b.height = window.innerHeight;
+// Put outside because in jquery , cannot execute . It needs pure JS
+let gl = b.getContext("webgl2"),
+  w = b.width = window.innerWidth,
+  h = b.height = window.innerHeight;
 
-  // console.log("What is GL ? "+gl);
+function createCube() {
 
+  var cube = {}; //Cube Object
   // Make Cube ! (Cube have 36 vertices)
-  let cubeVertices = [
+  cube.vertices = [
     // Front face (x,y,z)
     -0.5, -0.5, 0.5,
     0.5, -0.5, 0.5,
@@ -62,13 +63,13 @@ $(function () {
     -0.5, 0.5, -0.5,
   ];
 
-  let cubeVertexPositionBuffer = gl.createBuffer();
+  cube.positionBuffer = gl.createBuffer();
   // Bind Buffer to GPU cubeVertexPositionBuffer
-  gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
+  gl.bindBuffer(gl.ARRAY_BUFFER, cube.positionBuffer);
   // send cubeVertices to array buffer
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubeVertices), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.vertices), gl.STATIC_DRAW);
 
-  let colors = [];
+  cube.colors = [];
 
   // Make every cube faces to be the same color (rgba value)
   let faceColors = [
@@ -81,31 +82,32 @@ $(function () {
   ];
 
   // Cannot send to GPU, we do some looping technique to do all those colors to be on the same faces
+  // Loop until 6 because have 6 faces
   faceColors.forEach(function (color) {
     for (var i = 0; i < 6; i++) {
-      colors = colors.concat(color); // this will send the each array to colors
+      cube.colors = cube.colors.concat(color); // this will send the each array to cube.colors
     }
   });
 
   // console.log('colors', colors.toString());
 
 
-  var colorBuffer = gl.createBuffer();
+  cube.colorBuffer = gl.createBuffer();
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER, cube.colorBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.colors), gl.STATIC_DRAW);
 
 
-  var vertexShader = getAndCompileVertexShader("vertexShader");
-  var fragmentShader = getAndCompileFragmentShader("fragmentShader");
+  cube.vertexShader = getAndCompileVertexShader("vertexShader");
+  cube.fragmentShader = getAndCompileFragmentShader("fragmentShader");
   // Then we have to tell them to combine vertexShader into fragmentShader into the program
-  var shaderProgram = gl.createProgram();
+  cube.shaderProgram = gl.createProgram();
   // then you have to attach this shader into program (Two Parameters)
-  gl.attachShader(shaderProgram, vertexShader);
-  gl.attachShader(shaderProgram, fragmentShader);
-  gl.linkProgram(shaderProgram);
+  gl.attachShader(cube.shaderProgram, cube.vertexShader);
+  gl.attachShader(cube.shaderProgram, cube.fragmentShader);
+  gl.linkProgram(cube.shaderProgram);
   // Special Code for program detected error
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+  if (!gl.getProgramParameter(cube.shaderProgram, gl.LINK_STATUS)) {
     alert("Could not initialize shaders");
   }
 
@@ -113,33 +115,37 @@ $(function () {
   /************************************************************************************************************* 
   Note : But still those shaders do not know how to get these data from memory , only those data from program
   *************************************************************************************************************/
-  gl.useProgram(shaderProgram);
+  gl.useProgram(cube.shaderProgram);
 
   const FLOAT_SIZE = 4;
   /*************************************************************************************************************
   Get All the 'position' in vec3 position into the program
   *************************************************************************************************************/
-  var positionAttributePosition = gl.getAttribLocation(shaderProgram, "position");
+  cube.positionAttributePosition = gl.getAttribLocation(cube.shaderProgram, "position");
   // This will enable to send those attributes into vertex that passed from 'position' vertex
-  gl.enableVertexAttribArray(positionAttributePosition);
-  // Then you bind the buffer into cubeVertexPositionBuffer
-  gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
+  gl.enableVertexAttribArray(cube.positionAttributePosition);
+  // Then you bind the buffer into cube.positionBuffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, cube.positionBuffer);
   // void gl.vertexAttribPointer(index,size(position have 3 components : x , y, z),type,normalized,stride,offset(Can set read cubeVertices at size value))
-  gl.vertexAttribPointer(positionAttributePosition, 3, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(cube.positionAttributePosition, 3, gl.FLOAT, false, 0, 0);
 
   /*************************************************************************************************************
   Get All the 'position' in vec3 position into the program
   *************************************************************************************************************/
-  var colorAttributePosition = gl.getAttribLocation(shaderProgram, "color");
+  cube.colorAttributePosition = gl.getAttribLocation(cube.shaderProgram, "color");
   // This will enable to send those attributes into vertex that passed from 'position' vertex
-  gl.enableVertexAttribArray(colorAttributePosition);
-  // Then you bind the buffer into cubeVertexPositionBuffer
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  gl.enableVertexAttribArray(cube.colorAttributePosition);
+  // Then you bind the buffer into cube.positionBuffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, cube.colorBuffer);
   // void gl.vertexAttribPointer(index,size(position have 3 components : x , y, z),type,normalized,stride,offset(Can set read cubeVertices at size value))
-  gl.vertexAttribPointer(colorAttributePosition, 4, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(cube.colorAttributePosition, 4, gl.FLOAT, false, 0, 0);
+
+  cube.modelMatrix = mat4.create();
+  cube.modelMatrixLocation = gl.getUniformLocation(cube.shaderProgram, "modelMatrix");
 
 
   /*****************************************************************************************************************/
+
 
   // In this method , you can define any vertex shader and just call this function . EASY !
   function getAndCompileVertexShader(id) {
@@ -191,20 +197,29 @@ $(function () {
     return shader;
   }
 
+  return cube;
+}
+
+
+$(function () {
+
+  // Now just call and function that returns the object
+  var cube = createCube();
+
+  // console.log("What is GL ? "+gl);
+
   // This will create new identity
-  var modelMatrix = mat4.create();
   var viewMatrix = mat4.create();
   var projectionMatrix = mat4.create();
 
   /***********************************************************
           To get uniform matrix from html script
   ***********************************************************/
-  var modelMatrixLocation = gl.getUniformLocation(shaderProgram, "modelMatrix");
-  var viewMatrixLocation = gl.getUniformLocation(shaderProgram, "viewMatrix");
-  var projectionMatrixLocation = gl.getUniformLocation(shaderProgram, "projectionMatrix");
+  var viewMatrixLocation = gl.getUniformLocation(cube.shaderProgram, "viewMatrix");
+  var projectionMatrixLocation = gl.getUniformLocation(cube.shaderProgram, "projectionMatrix");
 
   var angle = 0.1; // put 0.1 , can skip incrementing on rotateY function
-  var speed = 0.05;
+  var speed = 0.01;
 
   // PERSPECTIVE CAMERA
   // .perspective(mat4 out, number fovy, number aspect , Number near, Number far)
@@ -214,24 +229,24 @@ $(function () {
   var runRenderLoop = () => {
     // Tell WebGL how to convert from clip space to pixels
     gl.viewport(0, 0, w, h);
-    // Make black color function
     gl.clearColor(0.2, 0.2, 0.7, 1);
-    // Before put color , we clean the color buffer bit
     // Clear the screen
     // Clear DEPTH BUFFER so that every cube color become solid !
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     // Must put test
     gl.enable(gl.DEPTH_TEST);
-    mat4.identity(modelMatrix); // this will reset identity so can do incrementing
+
+    // Cube 1
+    mat4.identity(cube.modelMatrix); // this will reset identity so can do incrementing
     // .translate(receiving matrix , matrix to translate ,[x,y,z])
     // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
-    mat4.translate(modelMatrix, modelMatrix, [0, 0, -10]);
-    mat4.rotateY(modelMatrix, modelMatrix, angle);
-    mat4.rotateX(modelMatrix, modelMatrix, angle / 2);
+    mat4.translate(cube.modelMatrix, cube.modelMatrix, [0, 0, -10]);
+    mat4.rotateY(cube.modelMatrix, cube.modelMatrix, angle);
+    mat4.rotateX(cube.modelMatrix, cube.modelMatrix, angle / 2);
     angle += speed;
 
     // Now to send the actual matrices to this location
-    gl.uniformMatrix4fv(modelMatrixLocation, false, modelMatrix);
+    gl.uniformMatrix4fv(cube.modelMatrixLocation, false, cube.modelMatrix);
     gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
     gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
     // .drawArrays(gl.TRIANGLES , offset , triangle cubeVertices(num))
@@ -239,6 +254,44 @@ $(function () {
     var count = 3 * 12; // 3 vertices * 12 triangles (6 rectangles)
     gl.drawArrays(gl.TRIANGLES, offset, count);
     // Will rerun after the render finish
+
+    // Cube 2
+    mat4.identity(cube.modelMatrix); // this will reset identity so can do incrementing
+    // .translate(receiving matrix , matrix to translate ,[x,y,z])
+    // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
+    // Change X position
+    mat4.translate(cube.modelMatrix, cube.modelMatrix, [2, 0, -10]);
+    mat4.rotateY(cube.modelMatrix, cube.modelMatrix, angle);
+    mat4.rotateX(cube.modelMatrix, cube.modelMatrix, angle / 2);
+    angle += speed;
+
+    // Now to send the actual matrices to this location
+    gl.uniformMatrix4fv(cube.modelMatrixLocation, false, cube.modelMatrix);
+    gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
+    gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
+    // .drawArrays(gl.TRIANGLES , offset , triangle cubeVertices(num))
+    var offset = 0;
+    var count = 3 * 12; // 3 vertices * 12 triangles (6 rectangles)
+    gl.drawArrays(gl.TRIANGLES, offset, count);
+
+    // Cube 3
+    mat4.identity(cube.modelMatrix); // this will reset identity so can do incrementing
+    // .translate(receiving matrix , matrix to translate ,[x,y,z])
+    // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
+    // Change X position
+    mat4.translate(cube.modelMatrix, cube.modelMatrix, [-2, 0, -10]);
+    mat4.rotateY(cube.modelMatrix, cube.modelMatrix, angle);
+    mat4.rotateX(cube.modelMatrix, cube.modelMatrix, angle / 2);
+    angle += speed;
+
+    // Now to send the actual matrices to this location
+    gl.uniformMatrix4fv(cube.modelMatrixLocation, false, cube.modelMatrix);
+    gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
+    gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
+    // .drawArrays(gl.TRIANGLES , offset , triangle cubeVertices(num))
+    var offset = 0;
+    var count = 3 * 12; // 3 vertices * 12 triangles (6 rectangles)
+    gl.drawArrays(gl.TRIANGLES, offset, count);
 
     requestAnimationFrame(runRenderLoop);
   }
