@@ -222,10 +222,9 @@ $(function () {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     // Must put test
     gl.enable(gl.DEPTH_TEST);
-    // Then DRAW TRIANGLE ! Yey !
-    // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
     mat4.identity(modelMatrix); // this will reset identity so can do incrementing
     // .translate(receiving matrix , matrix to translate ,[x,y,z])
+    // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
     mat4.translate(modelMatrix, modelMatrix, [0, 0, -10]);
     mat4.rotateY(modelMatrix, modelMatrix, angle);
     mat4.rotateX(modelMatrix, modelMatrix, angle / 2);
