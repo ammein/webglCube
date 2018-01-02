@@ -12,53 +12,54 @@ $(function () {
   // Make Cube ! (Cube have 36 vertices)
   let cubeVertices = [
     // Front face (x,y,z)
-    0,0,0,
-    20,0,0,
-    0,20,0,
-    0,20,0,
-    20,0,0,
-    20,20,0,
+    -0.5,-0.5,0.5,
+    0.5,-0.5,0.5,
+    -0.5,0.5,0.5,
+    0.5, 0.5, 0.5,
+    0.5,-0.5,0.5,
+    -0.5, 0.5, 0.5,
+    
 
     // Back face (x,y,z)
-    0, 0, 20,
-    20, 0, 20,
-    0, 20, 20,
-    0, 20, 20,
-    20, 0, 20,
-    20, 20, 20,
+    -0.5,-0.5,-0.5,
+    0.5,-0.5,-0.5,
+    -0.5,0.5,-0.5,
+    -0.5,0.5,-0.5,
+    0.5,-0.5,-0.5,
+    0.5,0.5,-0.5,
 
     // Top face (x,y,z)
-    0, 20, 0,
-    20, 20, 0,
-    0, 20, 20,
-    0, 20, 20,
-    20, 20, 0,    
-    20, 20, 20,
+    -0.5,0.5,0.5,
+    0.5,0.5,0.5,
+    -0.5,0.5,-0.5,
+    -0.5,0.5,-0.5,
+    0.5,0.5,0.5,
+    0.5,0.5,-0.5,
     
 
     // Bottom face (x,y,z)
-    0,0,0,
-    20,0,0,
-    0,0,20,
-    0,0,20,
-    20,0,0,
-    20,20,20,
+    -0.5,-0.5,0.5,
+    0.5,-0.5,0.5,
+    -0.5,-0.5,-0.5,
+    -0.5,-0.5,-0.5,
+    0.5,-0.5,0.5,
+    0.5,-0.5,-0.5,
 
     // Right face (x,y,z)
-    20,20,0,
-    20,0,0,
-    20,0,20,
-    20,0,20,
-    20,20,20,
-    20,20,0,
+    0.5,0.5,0.5,
+    0.5,-0.5,0.5,
+    0.5,-0.5,-0.5,
+    0.5,0.5,0.5,
+    0.5,-0.5,-0.5,
+    0.5,0.5,-0.5,
 
     // Left face (x,y,z)
-    0,0,0,
-    0,0,20,
-    0,20,0,
-    0,20,0,
-    0,20,20,
-    0,0,20
+    -0.5,0.5,0.5,
+    -0.5,-0.5,0.5,
+    -0.5,-0.5,-0.5,
+    -0.5,0.5,0.5,
+    -0.5,-0.5,-0.5,
+    -0.5,0.5,-0.5,
   ];
 
   let cubeVertexPositionBuffer = gl.createBuffer();
@@ -73,10 +74,10 @@ $(function () {
   let faceColors = [
     [1.0, 0.0, 0.0, 1.0], // Front Face
     [0.0, 1.0, 0.0, 1.0], // Back Face
-    [1.0, 0.0, 0.0, 1.0], // Top Face
-    [0.0, 1.0, 0.0, 1.0], // Bottom Face
-    [0.0, 1.0, 0.0, 1.0], // Right Face
-    [1.0, 0.0, 0.0, 1.0] // Left Face
+    [0.0, 0.0, 1.0, 1.0], // Top Face
+    [1.0, 1.0, 0.0, 1.0], // Bottom Face
+    [1.0, 0.0, 1.0, 1.0], // Right Face
+    [0.0, 1.0, 1.0, 0.0] // Left Face
   ];
 
   // Cannot send to GPU, we do some looping technique to do all those colors to be on the same faces
@@ -206,7 +207,8 @@ $(function () {
   var viewMatrixLocation = gl.getUniformLocation(shaderProgram, "viewMatrix");
   var projectionMatrixLocation = gl.getUniformLocation(shaderProgram, "projectionMatrix");
 
-  var angle = 0.1; // put 0.1 , can skip incrementing on rotateY function
+  var angle = 0.1;
+  var speed = 0.05; // put 0.1 , can skip incrementing on rotateY function
 
   var runRenderLoop = () => {
     // Tell WebGL how to convert from clip space to pixels
@@ -221,9 +223,9 @@ $(function () {
     // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
     mat4.identity(modelMatrix); // this will reset identity so can do incrementing
     // .translate(receiving matrix , matrix to translate ,[x,y,z])
-    mat4.translate(modelMatrix,modelMatrix,[0,0,1]);
+    mat4.translate(modelMatrix,modelMatrix,[0,0,-10]);
     mat4.rotateY(modelMatrix,modelMatrix,angle);
-    angle += 0.1;
+    angle += speed;
     
     // Now to send the actual matrices to this location
     gl.uniformMatrix4fv(modelMatrixLocation, false, modelMatrix);
