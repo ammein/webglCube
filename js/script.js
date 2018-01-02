@@ -10,6 +10,7 @@ let gl = b.getContext("webgl2"),
 function createCube() {
 
   var cube = {}; //Cube Object
+  
   // Make Cube ! (Cube have 36 vertices)
   cube.vertices = [
     // Front face (x,y,z)
