@@ -74,9 +74,9 @@ $(function () {
   let faceColors = [
     [1.0, 0.0, 0.0, 1.0], // Front Face
     [0.0, 1.0, 0.0, 1.0], // Back Face
-    [0.0, 0.0, 1.0, 1.0], // Top Face
+    [0.0, 0.0, 0.5, 1.0], // Top Face
     [1.0, 1.0, 0.0, 1.0], // Bottom Face
-    [1.0, 0.0, 1.0, 1.0], // Right Face
+    [1.0, 0.0, 0.5, 1.0], // Right Face
     [0.0, 1.0, 1.0, 0.0] // Left Face
   ];
 
