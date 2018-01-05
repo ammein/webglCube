@@ -7,6 +7,10 @@ let gl = b.getContext("webgl2"),
   w = b.width = window.innerWidth,
   h = b.height = window.innerHeight;
 
+  if(!gl){
+    alert("GL Needed");
+  }
+
 function createCube() {
 
   var cube = {}; //Cube Object
