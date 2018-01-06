@@ -30,13 +30,17 @@
   in vec4 color;
   out vec4 fcolor;
 
+  uniform vec4 colorsUniformArray[3];
+  // Only 3 vertices with offsets value
+  uniform vec3 offsets;
+
   uniform mat4 modelMatrix;
   uniform mat4 viewMatrix;
   uniform mat4 projectionMatrix;
 
   void main(){
-     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position,1);
-     fcolor = color;
+     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position.x + offsets[gl_InstanceID],position.yz,1);
+      fcolor = colorsUniformArray[gl_InstanceID];
   }
 </script>
 <!-- Fragment Shader -->

@@ -11,6 +11,18 @@ let gl = b.getContext("webgl2"),
     alert("GL Needed");
   }
 
+  function resize(gl){
+    var displayWidth = gl.clientWidth;
+    var displayHeight = gl.clientHeight;
+    
+    if(w !== displayWidth || h !== displayHeight){
+      w = displayWidth;
+      h = displayHeight;
+    }
+    console.log("Resizing Canvas");
+  }
+
+
 function createCube() {
 
   var cube = {}; //Cube Object
@@ -211,6 +223,20 @@ $(function () {
   // Now just call and function that returns the object
   var cube = createCube();
 
+  var uniformColorsArray = [];
+  // create vec4 fromValues (Red Color)
+  var color = vec4.fromValues(1,0,0,1);
+  uniformColorsArray.push(color);
+  // create vec4 fromValues (Green Color)  
+  var color = vec4.fromValues(0,1,0,1);
+  uniformColorsArray.push(color);
+  // create vec4 fromValues (Blue Color)  
+  var color = vec4.fromValues(0,0,1,1);
+  uniformColorsArray.push(color);
+
+  // -2 from first cube , 0 from second cube , 2 from the third cube
+  var offsetsVector = vec3.fromValues(-2,0,2);
+
   // console.log("What is GL ? "+gl);
 
   // This will create new identity
@@ -223,17 +249,25 @@ $(function () {
   var viewMatrixLocation = gl.getUniformLocation(cube.shaderProgram, "viewMatrix");
   var projectionMatrixLocation = gl.getUniformLocation(cube.shaderProgram, "projectionMatrix");
 
+  // Get color unifrom location
+  var colorsUniformLocation0 = gl.getUniformLocation(cube.shaderProgram, "colorsUniformArray[0]");
+  var colorsUniformLocation1 = gl.getUniformLocation(cube.shaderProgram, "colorsUniformArray[1]");
+  var colorsUniformLocation2 = gl.getUniformLocation(cube.shaderProgram, "colorsUniformArray[2]");
+
+  var offsetUnifromLocation = gl.getUniformLocation(cube.shaderProgram, "offsets");
+
   var angle = 0.1; // put 0.1 , can skip incrementing on rotateY function
   var speed = 0.01;
 
   // PERSPECTIVE CAMERA
   // .perspective(mat4 out, number fovy, number aspect , Number near, Number far)
   // .perspective(mat4 out , Vertical field of view in radians,viewport width/height,Near bound of matrix,Far bound of matrix)
-  mat4.perspective(projectionMatrix, 45 * Math.PI / 360.0, w / h, 0.1, 50);
+  mat4.perspective(projectionMatrix, 45 * Math.PI / 180.0, w / h, 0.1, 50);
 
   var runRenderLoop = () => {
+    gl.viewport(0, 0, w, h);    
+    // resize(gl);
     // Tell WebGL how to convert from clip space to pixels
-    gl.viewport(0, 0, w, h);
     gl.clearColor(0.2, 0.2, 0.7, 1);
     // Clear the screen
     // Clear DEPTH BUFFER so that every cube color become solid !
@@ -245,7 +279,7 @@ $(function () {
     mat4.identity(cube.modelMatrix); // this will reset identity so can do incrementing
     // .translate(receiving matrix , matrix to translate ,[x,y,z])
     // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
-    mat4.translate(cube.modelMatrix, cube.modelMatrix, [0, 0, -10]);
+    mat4.translate(cube.modelMatrix, cube.modelMatrix, [0, 0, -5]);
     mat4.rotateY(cube.modelMatrix, cube.modelMatrix, angle);
     mat4.rotateX(cube.modelMatrix, cube.modelMatrix, angle / 2);
     angle += speed;
@@ -254,49 +288,19 @@ $(function () {
     gl.uniformMatrix4fv(cube.modelMatrixLocation, false, cube.modelMatrix);
     gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
     gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
-    // .drawArrays(gl.TRIANGLES , offset , triangle cubeVertices(num))
+    
+    // Get color uniform location to array (No need matrix anymore)
+    // uniform4fv has no transpose value    
+    gl.uniform4fv(colorsUniformLocation0, uniformColorsArray[0]);
+    gl.uniform4fv(colorsUniformLocation1, uniformColorsArray[1]);
+    gl.uniform4fv(colorsUniformLocation2, uniformColorsArray[2]);
+
+    gl.uniform3fv(offsetUnifromLocation, offsetsVector);
     var offset = 0;
     var count = 3 * 12; // 3 vertices * 12 triangles (6 rectangles)
     gl.drawArrays(gl.TRIANGLES, offset, count);
-    // Will rerun after the render finish
-
-    // Cube 2
-    mat4.identity(cube.modelMatrix); // this will reset identity so can do incrementing
-    // .translate(receiving matrix , matrix to translate ,[x,y,z])
-    // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
-    // Change X position
-    mat4.translate(cube.modelMatrix, cube.modelMatrix, [2, 0, -10]);
-    mat4.rotateY(cube.modelMatrix, cube.modelMatrix, angle);
-    mat4.rotateX(cube.modelMatrix, cube.modelMatrix, angle / 2);
-    angle += speed;
-
-    // Now to send the actual matrices to this location
-    gl.uniformMatrix4fv(cube.modelMatrixLocation, false, cube.modelMatrix);
-    gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
-    gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
-    // .drawArrays(gl.TRIANGLES , offset , triangle cubeVertices(num))
-    var offset = 0;
-    var count = 3 * 12; // 3 vertices * 12 triangles (6 rectangles)
-    gl.drawArrays(gl.TRIANGLES, offset, count);
-
-    // Cube 3
-    mat4.identity(cube.modelMatrix); // this will reset identity so can do incrementing
-    // .translate(receiving matrix , matrix to translate ,[x,y,z])
-    // .rotateY(the receiving matrix, matrix to rotate, angle to rotate the matrix)
-    // Change X position
-    mat4.translate(cube.modelMatrix, cube.modelMatrix, [-2, 0, -10]);
-    mat4.rotateY(cube.modelMatrix, cube.modelMatrix, angle);
-    mat4.rotateX(cube.modelMatrix, cube.modelMatrix, angle / 2);
-    angle += speed;
-
-    // Now to send the actual matrices to this location
-    gl.uniformMatrix4fv(cube.modelMatrixLocation, false, cube.modelMatrix);
-    gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
-    gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
-    // .drawArrays(gl.TRIANGLES , offset , triangle cubeVertices(num))
-    var offset = 0;
-    var count = 3 * 12; // 3 vertices * 12 triangles (6 rectangles)
-    gl.drawArrays(gl.TRIANGLES, offset, count);
+    // drawArrays(gl.TRIANGLES , offset , count , number of instances)
+    gl.drawArraysInstanced(gl.TRIANGLES, offset, count , 3);
 
     requestAnimationFrame(runRenderLoop);
   }
@@ -304,8 +308,8 @@ $(function () {
 
   requestAnimationFrame(runRenderLoop);
 
-  window.addEventListener("resize", () => {
-    w = b.width = window.innerWidth;
-    h = b.height = window.innerHeight;
-  });
+  // window.addEventListener("resize", () => {
+  //   w = b.width = window.innerWidth;
+  //   h = b.height = window.innerHeight;
+  // });
 });
