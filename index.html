@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>WebGL Cube</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Pragma" content="no-cache">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="./css/style.css">
   <link rel="shortcut icon" href="./img/favicon.png" type="image/x-icon">
@@ -38,9 +39,12 @@
   uniform mat4 viewMatrix;
   uniform mat4 projectionMatrix;
 
+  // New function that can make color more lively
+  // using special var = gl_VertexID
+
   void main(){
      gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position.x + offsets[gl_InstanceID],position.yz,1);
-      fcolor = colorsUniformArray[gl_InstanceID];
+      fcolor = colorsUniformArray[(gl_InstanceID + gl_VertexID) % 2];
   }
 </script>
 <!-- Fragment Shader -->
